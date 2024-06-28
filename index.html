@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Type Predictor</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Blood Type Predictor</h1>
+        <p class="text-center">Enter the blood types of the parents to predict the possible blood types of their child.</p>
+        <form id="bloodForm">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="mother">Mother's Blood Type</label>
+                    <select id="mother" class="form-control" required>
+                        <option value="">Choose...</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="father">Father's Blood Type</label>
+                    <select id="father" class="form-control" required>
+                        <option value="">Choose...</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="child">Child's Blood Type</label>
+                    <select id="child" class="form-control" required>
+                        <option value="">Choose...</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Check Blood Type</button>
+        </form>
+        <div id="result" class="result text-center"></div>
+    </div>
+
+    <script>
+        document.getElementById('bloodForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const mother = document.getElementById('mother').value;
+            const father = document.getElementById('father').value;
+            const child = document.getElementById('child').value;
+
+            const ABOCompatibility = {
+                'A': ['A', 'O'],
+                'B': ['B', 'O'],
+                'AB': ['A', 'B'],
+                'O': ['O']
+            };
+
+            const RhCompatibility = {
+                '+': ['+', '-'],
+                '-': ['-']
+            };
+
+            function getPossibleChildBloodTypes(parent1, parent2) {
+                let possibleABO = new Set();
+                parent1.forEach(type1 => {
+                    parent2.forEach(type2 => {
+                        if (type1 === type2) {
+                            possibleABO.add(type1);
+                        } else if ((type1 === 'A' && type2 === 'B') || (type1 === 'B' && type2 === 'A')) {
+                            possibleABO.add('AB');
+                        } else {
+                            possibleABO.add(type1);
+                            possibleABO.add(type2);
+                        }
+                    });
+                });
+                return Array.from(possibleABO);
+            }
+
+            function getPossibleChildRhTypes(parent1, parent2) {
+                let possibleRh = new Set();
+                parent1.forEach(type1 => {
+                    parent2.forEach(type2 => {
+                        possibleRh.add(type1);
+                        possibleRh.add(type2);
+                    });
+                });
+                return Array.from(possibleRh);
+            }
+
+            const motherABO = mother.slice(0, -1);
+            const fatherABO = father.slice(0, -1);
+
+            const motherRh = mother.slice(-1);
+            const fatherRh = father.slice(-1);
+
+            const possibleChildABO = getPossibleChildBloodTypes(ABOCompatibility[motherABO], ABOCompatibility[fatherABO]);
+            const possibleChildRh = getPossibleChildRhTypes(RhCompatibility[motherRh], RhCompatibility[fatherRh]);
+
+            let possibleChildTypes = [];
+            possibleChildABO.forEach(abo => {
+                possibleChildRh.forEach(rh => {
+                    possibleChildTypes.push(abo + rh);
+                });
+            });
+
+            const resultDiv = document.getElementById('result');
+            if (possibleChildTypes.includes(child)) {
+                resultDiv.innerHTML = `<div class="alert alert-success">The child's blood type (${child}) is possible.</div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">The child's blood type (${child}) is not possible.</div>`;
+            }
+        });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
